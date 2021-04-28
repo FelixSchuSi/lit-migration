@@ -3,6 +3,7 @@ import type { API, FileInfo, Options } from "jscodeshift";
 function transformer(file: FileInfo, api: API, options: Options) {
     const j = api.jscodeshift;
 
+    // Migration guide: https://github.com/lit/lit/wiki/Lit-2.0-Upgrade-Guide
     // Decorators have been moved to "lit/decorators"
     // All decorators: property customElement internalProperty query queryAsync queryAll eventOptions queryAssignedNodes
 
