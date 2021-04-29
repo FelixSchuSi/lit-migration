@@ -12,7 +12,6 @@ function transformer(file: FileInfo, api: API, options: Options) {
     const j = api.jscodeshift;
     const root = j(file.source);
 
-
     // rename named Imports for renamed Apis
     // e. g.: import { UpdatingElement } from 'lit-element'; -> import { ReactiveElement } from 'lit-element';
     renameRenamedApis({ root, j });
