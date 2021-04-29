@@ -1,5 +1,12 @@
 # lit-migration
 
+## Example usage
+
+````
+jscodeshift -t index.ts cli-test/ --extensions=ts --parser=ts
+````
+For more options type `jscodeshift --help` or head over to [jscodeshift repo](https://github.com/facebook/jscodeshift).
+
 ### references
 - https://github.com/lit/lit/wiki/Lit-2.0-Upgrade-Guide
 - https://www.toptal.com/javascript/write-code-to-rewrite-your-code

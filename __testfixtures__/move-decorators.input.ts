@@ -1,10 +1,11 @@
-import { 
+import {
     property,
-    customElement, 
-    internalProperty, 
-    query, 
-    queryAsync, 
-    queryAll, 
-    eventOptions, 
+    customElement,
+    internalProperty,
+    query,
+    queryAsync,
+    queryAll,
+    eventOptions,
     queryAssignedNodes,
+    LitElement,
 } from 'lit-element';

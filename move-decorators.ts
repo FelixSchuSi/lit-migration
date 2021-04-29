@@ -10,10 +10,10 @@ export function moveDecorators({ root, j }: DefaultOptions) {
     const litElementImports = root
         .find(j.ImportDeclaration, {
             source: {
-                type: 'StringLiteral',
                 value: 'lit-element',
             },
         })
+        .filter(path => path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral')
         .find(j.ImportSpecifier)
         .filter((importSpecifier: ASTPath<ImportSpecifier>) => {
             const importSpecifierStr: string = importSpecifier.value.imported.name;
@@ -23,11 +23,13 @@ export function moveDecorators({ root, j }: DefaultOptions) {
                 } else {
                     decoratorImport.specifiers.push(j.importSpecifier(j.identifier(importSpecifierStr)))
                 }
-                importSpecifier.parent.value.specifiers.pop(importSpecifier);
+                importSpecifier.parent.value.specifiers = importSpecifier.parent.value.specifiers.filter(e => {
+                    return e.imported.name !== importSpecifier.value.imported.name;
+                });
 
                 return importSpecifier.parent.value.specifiers.length === 0
             }
-        }).forEach((importSpecifier: ASTPath<ImportSpecifier>)=>{
+        }).forEach((importSpecifier: ASTPath<ImportSpecifier>) => {
             j(importSpecifier.parent).remove()
         })
 

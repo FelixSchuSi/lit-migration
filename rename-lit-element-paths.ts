@@ -5,10 +5,10 @@ export function renameLitElementPaths({ root, j }: DefaultOptions) {
     root
         .find(j.ImportDeclaration, {
             source: {
-                type: 'StringLiteral',
                 value: 'lit-element',
             },
         })
+        .filter(path => path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral')
         .replaceWith(nodePath => {
             const { node } = nodePath;
             node.source.value = 'lit';
