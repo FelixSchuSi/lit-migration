@@ -1,18 +1,40 @@
-import type { API, FileInfo, Options } from "jscodeshift";
-
+import type { API, ASTPath, Collection, FileInfo, ImportDeclaration, ImportSpecifier, JSCodeshift, Options, Statement } from "jscodeshift";
+export interface DefaultOptions {
+    j: JSCodeshift,
+    root: Collection<any>
+}
 function transformer(file: FileInfo, api: API, options: Options) {
     const j = api.jscodeshift;
 
-    // Migration guide: https://github.com/lit/lit/wiki/Lit-2.0-Upgrade-Guide
-    // Decorators have been moved to "lit/decorators"
-    // All decorators: property customElement internalProperty query queryAsync queryAll eventOptions queryAssignedNodes
-
-    // Directives have been moved from `lit-html/directives/repeat.js` to `lit/directives/repeat.js`
-    // All directives: asyncAppend asyncReplace cache classMap guard ifDefined live repeat style-map template-content unsafe-html unsafe-svg until
-
     const root = j(file.source);
-    // .find(j.ImportSpecifier) // this gets LitElement and html
 
+    let decoratorImport: ImportDeclaration | null = null;
+    // Move decorators to separate imports
+    // e. g.: import {property} from `lit-element`; -> import {property} from `lit/decorators.js`;
+    const decorators = ['property', 'customElement', 'internalProperty', 'query', 'queryAsync', 'queryAll', 'eventOptions', 'queryAssignedNodes'];
+    const litElementImports = root
+        .find(j.ImportDeclaration, {
+            source: {
+                type: 'StringLiteral',
+                value: 'lit-element',
+            },
+        })
+        .find(j.ImportSpecifier)
+        .forEach((importSpecifier: ASTPath<ImportSpecifier>) => {
+            const importSpecifierStr: string = importSpecifier.value.imported.name;
+            if (decorators.some(decorator => decorator === importSpecifierStr)) {
+                if (!decoratorImport) {
+                    decoratorImport = addDecoratorImport(root, importSpecifierStr, j);
+                }else{
+                    decoratorImport.specifiers.push(j.importSpecifier(j.identifier(importSpecifierStr)))
+                }
+                importSpecifier.parent.value.specifiers.pop(importSpecifier);
+                // TODO: Remove original import statement if no named imports are left
+            }
+        })
+
+    // Rename import import-paths for directives
+    // e. g.: 'lit-html/directives/repeat.js' -> 
     const directives = ['asyncAppend', 'asyncReplace', 'cache', 'classMap', 'guard', 'ifDefined', 'live', 'repeat', 'style-map', 'template-content', 'unsafe-html', 'unsafe-svg', 'until'];
     root
         .find(j.ImportDeclaration, {
@@ -32,6 +54,7 @@ function transformer(file: FileInfo, api: API, options: Options) {
             return node;
         });
 
+    // Rename import declarations from 'lit-element' to 'lit'
     root
         .find(j.ImportDeclaration, {
             source: {
@@ -46,6 +69,13 @@ function transformer(file: FileInfo, api: API, options: Options) {
         });
 
     return root.toSource({ quote: 'single' })
+}
+
+
+function addDecoratorImport(root: Collection<any>, firstNamedImport: string, j: JSCodeshift): ImportDeclaration {
+    const newImport = j.importDeclaration([j.importSpecifier(j.identifier(firstNamedImport))], j.literal('lit/decorators.js'));
+    root.get().node.program.body.unshift(newImport);
+    return newImport;
 }
 
 module.exports = transformer;
