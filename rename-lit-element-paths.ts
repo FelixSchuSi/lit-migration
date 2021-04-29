@@ -1,4 +1,4 @@
-import { DefaultOptions } from "./lit-migration";
+import { DefaultOptions } from "./index";
 
 export function renameLitElementPaths({ root, j }: DefaultOptions) {
     // Rename import declarations from 'lit-element' to 'lit'

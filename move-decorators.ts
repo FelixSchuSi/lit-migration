@@ -1,5 +1,5 @@
 import { ASTPath, ImportDeclaration, ImportSpecifier } from "jscodeshift";
-import { DefaultOptions } from "./lit-migration";
+import { DefaultOptions } from "./index";
 
 // Move decorators to separate imports
 // e. g.: import {property} from `lit-element`; -> import {property} from `lit/decorators.js`;

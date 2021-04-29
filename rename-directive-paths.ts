@@ -1,4 +1,4 @@
-import { DefaultOptions } from "./lit-migration";
+import { DefaultOptions } from "./index";
 
 export function renameDirectivePaths({ root, j }: DefaultOptions) {
     // Rename import import-paths for directives
