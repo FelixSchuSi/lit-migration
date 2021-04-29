@@ -9,8 +9,30 @@ function transformer(file: FileInfo, api: API, options: Options) {
 
     // Directives have been moved from `lit-html/directives/repeat.js` to `lit/directives/repeat.js`
     // All directives: asyncAppend asyncReplace cache classMap guard ifDefined live repeat style-map template-content unsafe-html unsafe-svg until
-    return j(file.source)
-        // .find(j.ImportSpecifier) // this gets LitElement and html
+
+    const root = j(file.source);
+    // .find(j.ImportSpecifier) // this gets LitElement and html
+
+    const directives = ['asyncAppend', 'asyncReplace', 'cache', 'classMap', 'guard', 'ifDefined', 'live', 'repeat', 'style-map', 'template-content', 'unsafe-html', 'unsafe-svg', 'until'];
+    root
+        .find(j.ImportDeclaration, {
+            source: {
+                type: 'StringLiteral'
+            },
+        })
+        .replaceWith(nodePath => {
+            const { node } = nodePath;
+            const currentValue = <string>node.source.value;
+
+            if (currentValue.startsWith('lit-html/') && directives.some(directive => currentValue.includes(directive))) {
+                const newValue = currentValue.replace(/^lit-html/, 'lit');
+                node.source.value = newValue;
+            }
+
+            return node;
+        });
+
+    root
         .find(j.ImportDeclaration, {
             source: {
                 type: 'StringLiteral',
@@ -19,12 +41,11 @@ function transformer(file: FileInfo, api: API, options: Options) {
         })
         .replaceWith(nodePath => {
             const { node } = nodePath;
-
-            console.log(node)
             node.source.value = 'lit';
             return node;
-        })
-        .toSource({ quote: 'single' });
+        });
+
+    return root.toSource({ quote: 'single' })
 }
 
 module.exports = transformer;
