@@ -3,7 +3,7 @@ import { DefaultOptions } from "./lit-migration";
 export function renameDirectivePaths({ root, j }: DefaultOptions) {
     // Rename import import-paths for directives
     // e. g.: 'lit-html/directives/repeat.js' -> 
-    const directives = ['asyncAppend', 'asyncReplace', 'cache', 'classMap', 'guard', 'ifDefined', 'live', 'repeat', 'style-map', 'template-content', 'unsafe-html', 'unsafe-svg', 'until'];
+    const directives = ['async-append', 'async-replace', 'cache', 'class-map', 'guard', 'if-defined', 'live', 'repeat', 'style-map', 'template-content', 'unsafe-html', 'unsafe-svg', 'until'];
     root
         .find(j.ImportDeclaration, {
             source: {
