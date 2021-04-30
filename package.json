@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "tsc index.ts && jest"
+    "test": "tsc index.ts && jest",
+    "test:realfiles": "tsc index.ts && tsc test-on-real-files.ts && node test-on-real-files.js"
   },
   "repository": {
     "type": "git",
