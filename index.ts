@@ -24,7 +24,7 @@ function transformer(file: FileInfo, api: API, options: Options) {
     // e. g.: 'lit-html/directives/repeat.js' -> 'lit/directives/repeat.js';
     renameDirectivePaths({ root, j });
 
-    // Rename 'lit-element' import declarations 
+    // Rename 'lit-element' and 'lit-html' import declarations 
     // e. g.: lit-element' -> 'lit'
     renameToLit({ root, j });
 
