@@ -26,3 +26,5 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run test
+    - run: jscodeshift -t index.js __testfixtures__/ --extensions=ts --parser=ts
+    - run: npm run test:realfiles
