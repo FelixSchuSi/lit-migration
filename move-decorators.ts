@@ -22,6 +22,8 @@ export function moveDecorators({ root, j }: DefaultOptions) {
                 if (!decoratorImport) {
                     decoratorImport = addDecoratorImport(importSpecifier);
                 } else {
+                    // TODO: When the importSpecifier is taken from a 'import type' declaration
+                    // The import should also be added to a 'import type' declaration
                     decoratorImport.specifiers?.push(j.importSpecifier(j.identifier(importSpecifierStr)))
                 }
                 importSpecifier.parent.value.specifiers = importSpecifier.parent.value.specifiers.filter((e: ImportSpecifier) => {
@@ -37,6 +39,9 @@ export function moveDecorators({ root, j }: DefaultOptions) {
 
     function addDecoratorImport(importSpecifier: ASTPath<ImportSpecifier>): ImportDeclaration {
         const firstNamedImport: string = importSpecifier.value.imported.name;
+        // TODO: When the importSpecifier is taken from a 'import type' declaration
+        // a 'import type' declaration should be created here
+
         const newImport = j.importDeclaration([j.importSpecifier(j.identifier(firstNamedImport))], j.literal('lit/decorators.js'));
         const lastLitElementImport = imports.at(imports.length - 1).get();
         lastLitElementImport.insertAfter(newImport);
