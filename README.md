@@ -3,7 +3,7 @@
 ## Example usage
 
 ````
-jscodeshift -t index.ts cli-test/ --extensions=ts --parser=ts
+jscodeshift -t index.js cli-test/ --extensions=ts --parser=ts
 ````
 For more options type `jscodeshift --help` or head over to [jscodeshift repo](https://github.com/facebook/jscodeshift).
 
