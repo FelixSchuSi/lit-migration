@@ -1,4 +1,4 @@
-import { readdir, readFile } from 'fs/promises';
+const { readdir, readFile } = require('fs').promises;
 import * as Diff from 'diff';
 
 (async () => {
