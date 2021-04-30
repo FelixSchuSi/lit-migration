@@ -6,36 +6,40 @@ import { DefaultOptions } from "./index";
 export function moveDecorators({ root, j }: DefaultOptions) {
     let decoratorImport: ImportDeclaration | null = null;
 
-    const decorators = ['property', 'customElement', 'internalProperty', 'query', 'queryAsync', 'queryAll', 'eventOptions', 'queryAssignedNodes'];
-    const litElementImports = root
+    const decorators = ['state', 'property', 'customElement', 'internalProperty', 'query', 'queryAsync', 'queryAll', 'eventOptions', 'queryAssignedNodes'];
+    const imports = root
         .find(j.ImportDeclaration, {
             source: {
                 value: 'lit-element',
             },
-        })
-        .filter(path => path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral')
+        });
+
+    imports.filter(path => path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral')
         .find(j.ImportSpecifier)
         .filter((importSpecifier: ASTPath<ImportSpecifier>) => {
             const importSpecifierStr: string = importSpecifier.value.imported.name;
             if (decorators.some(decorator => decorator === importSpecifierStr)) {
                 if (!decoratorImport) {
-                    decoratorImport = addDecoratorImport(importSpecifierStr);
+                    decoratorImport = addDecoratorImport(importSpecifier);
                 } else {
-                    decoratorImport.specifiers.push(j.importSpecifier(j.identifier(importSpecifierStr)))
+                    decoratorImport.specifiers?.push(j.importSpecifier(j.identifier(importSpecifierStr)))
                 }
-                importSpecifier.parent.value.specifiers = importSpecifier.parent.value.specifiers.filter(e => {
-                    return e.imported.name !== importSpecifier.value.imported.name;
+                importSpecifier.parent.value.specifiers = importSpecifier.parent.value.specifiers.filter((e: ImportSpecifier) => {
+                    return e.imported?.name !== importSpecifier.value.imported.name;
                 });
 
                 return importSpecifier.parent.value.specifiers.length === 0
             }
+            return false;
         }).forEach((importSpecifier: ASTPath<ImportSpecifier>) => {
             j(importSpecifier.parent).remove()
         })
 
-    function addDecoratorImport(firstNamedImport: string): ImportDeclaration {
+    function addDecoratorImport(importSpecifier: ASTPath<ImportSpecifier>): ImportDeclaration {
+        const firstNamedImport: string = importSpecifier.value.imported.name;
         const newImport = j.importDeclaration([j.importSpecifier(j.identifier(firstNamedImport))], j.literal('lit/decorators.js'));
-        root.get().node.program.body.unshift(newImport);
+        const lastLitElementImport = imports.at(imports.length - 1).get();
+        lastLitElementImport.insertAfter(newImport);
         return newImport;
     }
 }

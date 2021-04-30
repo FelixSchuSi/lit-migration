@@ -11,7 +11,7 @@ export function renameDirectivePaths({ root, j }: DefaultOptions) {
             const { node } = nodePath;
             const currentValue = <string>node.source.value;
 
-            if (currentValue.startsWith('lit-html/') && directives.some(directive => currentValue.includes(directive))) {
+            if (currentValue.startsWith('lit-html/directives/') && directives.some(directive => currentValue.includes(directive))) {
                 const newValue = currentValue.replace(/^lit-html/, 'lit');
                 node.source.value = newValue;
             }

@@ -1,7 +1,6 @@
 import {
     property,
     customElement,
-    internalProperty,
     query,
     queryAsync,
     queryAll,

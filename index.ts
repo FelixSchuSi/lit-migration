@@ -1,7 +1,7 @@
 import type { API, Collection, FileInfo, JSCodeshift, Options } from "jscodeshift";
 import { moveDecorators } from "./move-decorators";
 import { renameDirectivePaths } from "./rename-directive-paths";
-import { renameLitElementPaths } from "./rename-lit-element-paths";
+import { renameToLit } from "./rename-to-lit";
 import { renameRenamedApis } from "./rename-renamed-apis";
 export interface DefaultOptions {
     j: JSCodeshift,
@@ -17,7 +17,7 @@ function transformer(file: FileInfo, api: API, options: Options) {
     renameRenamedApis({ root, j });
 
     // Move decorators to separate imports
-    // e. g.: import {property} from `lit-element`; -> import {property} from `lit/decorators.js`;
+    // e. g.: import { property } from 'lit-element'; -> import { property } from 'lit/decorators.js';
     moveDecorators({ root, j });
 
     // Rename import import specifiers for directives
@@ -26,10 +26,11 @@ function transformer(file: FileInfo, api: API, options: Options) {
 
     // Rename 'lit-element' import declarations 
     // e. g.: lit-element' -> 'lit'
-    renameLitElementPaths({ root, j });
+    renameToLit({ root, j });
 
     return root.toSource({ quote: 'single' })
 }
 
 
 module.exports = transformer;
+module.exports.parser = 'ts';
