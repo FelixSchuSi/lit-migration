@@ -1,27 +1,28 @@
 # lit-migration
+## What is this
+This is a codemod that helps you to migrate a codebase from `lit-element` or `lit-html` to `lit`.
+Take a look at the [official migration guide](https://github.com/lit/lit/wiki/Lit-2.0-Upgrade-Guide) to get a full overwiew of what needs to be done to migrate your codebase to `lit`.
 
 ## Example usage
-
 ````
-jscodeshift -t index.js cli-test/ --extensions=ts --parser=ts
+npx jscodeshift -t lit-migration.js __testfixtures__/ --extensions=ts --parser=ts
 ````
-For more options type `jscodeshift --help` or head over to [jscodeshift repo](https://github.com/facebook/jscodeshift).
+For more options type `jscodeshift --help` or head over to the [jscodeshift repo](https://github.com/facebook/jscodeshift).
 
-### references
+## What `lit-migration` does
+- It changes all `lit-element` and `lit-html` import statements to import from `lit`
+- It renames all occurrences of renamed Lit-APIs
+  - see [all renamed APIs](https://github.com/lit/lit/wiki/Lit-2.0-Upgrade-Guide#update-to-renamed-apis)
+
+## `lit-migration` does NOT
+- turn your directives into class based directives
+- offer customization for formatting. Run your code formatter after using this tool.
+
+## Contributing
+There are probably usages of `lit` that were not considered.
+Feel free to open issues or file PRs.
+
+### References
 - https://github.com/lit/lit/wiki/Lit-2.0-Upgrade-Guide
 - https://www.toptal.com/javascript/write-code-to-rewrite-your-code
 - https://github.com/facebook/jscodeshift
-- https://github.com/facebook/jscodeshift#unit-testing
-
-### Stategy
-1. Adjust names for renamed apis (in import statement and sourcecode itself) https://github.com/lit/lit/wiki/Lit-2.0-Upgrade-Guide#update-to-renamed-apis
-2. Move decorators to separate imports and remove the named import from the original import statement (Remove complete import statement if there are no named imports left)
-    - `lit-element` -> `lit/decorators.js`
-3. Rename import declaration for directives (`lit-html/directives/repeat.js` -> `lit/directives/repeat.js`)
-4. Rename `lit-element` to `lit`
-
-### Things to look out for
-- Are there imports of `lit-element` and `lit-html` that are not referencing the index module?
-  - as in `lit-html/directives/repeat.js`
-- Make sure type only imports and regular imports dont get mixed up
-- Are file extensions used in imports?

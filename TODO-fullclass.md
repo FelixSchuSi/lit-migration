@@ -1,4 +1,5 @@
 ### input
+```ts
 import { LitElement, html, internalProperty, customElement, query, UpdatingElement } from 'lit-element';
 import { NodePart } from 'lit-html';
 
@@ -18,9 +19,9 @@ class Element extends LitElement {
         return part instanceof NodePart;
     }
 }
-
+```
 ### output
-
+```ts
 import { LitElement, html } from 'lit';
 import { state, customElement } from 'lit/decorators.js';
 import { ReactiveElement } from 'lit';
@@ -41,3 +42,4 @@ class Element extends LitElement {
         return part instanceof ChildPart;
     }
 }
+```

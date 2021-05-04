@@ -1,4 +1,4 @@
-import { ASTPath, CallExpression, ClassProperty, Collection, Declaration, Decorator, Expression, ImportSpecifier, VariableDeclaration } from "jscodeshift";
+import { ASTPath, ClassMethod, ClassProperty, Collection, Decorator, ImportSpecifier } from "jscodeshift";
 import { DefaultOptions } from "./index";
 
 export function renameRenamedApis({ root, j }: DefaultOptions) {
@@ -48,4 +48,35 @@ export function renameRenamedApis({ root, j }: DefaultOptions) {
             })
             return node;
         })
+
+    root
+        .find(j.ClassMethod)
+        .filter((path) => {
+            const { node } = path;
+            //@ts-ignore
+            const functionName = node.key.name;
+            return renamedLitFunctions.hasOwnProperty(functionName);
+        })
+        .forEach((path: ASTPath<ClassMethod>) => {
+            const { node } = path;
+            //@ts-ignore
+            const oldFunctionName = node.key.name;
+            const newFunctionName = renamedLitFunctions[<keyof typeof renamedLitFunctions>oldFunctionName];
+            //@ts-ignore
+            node.key.name = newFunctionName;
+        }).filter((path: ASTPath<ClassMethod>) => {
+            // Change the return type of getUpdateComplete to boolean
+            const { node } = path;
+            //@ts-ignore
+            const isGetUpdateComplete = node.key.name === 'getUpdateComplete';
+            const hasReturnType = !!node.returnType?.typeAnnotation;
+            return isGetUpdateComplete && hasReturnType;
+        }).forEach((path: ASTPath<ClassMethod>) => {
+            const { node } = path;
+            if (node.returnType?.typeAnnotation) {
+                // Instantiate "Promise<boolean>""
+                const promiseBoolean = j.genericTypeAnnotation(j.identifier('Promise'), j.typeParameterInstantiation([j.booleanTypeAnnotation()]));
+                node.returnType.typeAnnotation = promiseBoolean;
+            }
+        });
 }

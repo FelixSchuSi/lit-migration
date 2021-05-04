@@ -1,9 +1,11 @@
 const { readdir, readFile } = require('fs').promises;
 import * as Diff from 'diff';
 
+// Note: Run this before running this test!
+// npx jscodeshift -t index.js __testfixtures__/ --extensions=ts --parser=ts
 (async () => {
     const files = await readdir('./__testfixtures__');
-    const testCases = Array.from(new Set(files.map(f => f.split('.')[0])));
+    const testCases = Array.from(new Set(files.map((f: string) => f.split('.')[0])));
     let failed = false;
     for (const file of testCases) {
         const received = await readFile(`./__testfixtures__/${file}.input.ts`);
