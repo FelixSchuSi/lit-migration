@@ -1,3 +1,12 @@
+# todo
+
+ - [ ] `static styles: CSSResult` -> `static styles: CSSResultGroup`
+    - Change type
+    - Also change import
+    - If CSSResult has been imported as a type import, then import CSSResultGroup as type import, else normal import
+    - If this has been the only reference to CSSResult, remove the old import
+
+## Add a full class test case
 ### input
 ```ts
 import { LitElement, html, internalProperty, customElement, query, UpdatingElement } from 'lit-element';
