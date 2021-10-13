@@ -3,6 +3,7 @@ import { moveDecorators } from "./move-decorators";
 import { renameDirectivePaths } from "./rename-directive-paths";
 import { renameToLit } from "./rename-to-lit";
 import { renameRenamedApis } from "./rename-renamed-apis";
+import { renameCssResult } from "./rename-css-result";
 export interface DefaultOptions {
     j: JSCodeshift,
     root: Collection<any>
@@ -23,6 +24,10 @@ function transformer(file: FileInfo, api: API, options: Options) {
     // Rename import import specifiers for directives
     // e. g.: 'lit-html/directives/repeat.js' -> 'lit/directives/repeat.js';
     renameDirectivePaths({ root, j });
+
+    // Rename CssResult to CssResultGroup
+    // e. g.: 'public static styles: CssResult = css``' -> 'public static styles: CssResultGroup = css``';
+    renameCssResult({ root, j });
 
     // Rename 'lit-element' and 'lit-html' import declarations 
     // e. g.: lit-element' -> 'lit'
