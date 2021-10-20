@@ -181,6 +181,40 @@ function renameRenamedApis(_a) {
 exports.renameRenamedApis = renameRenamedApis;
 });
 
+var renameCssResult_1 = createCommonjsModule(function (module, exports) {
+exports.__esModule = true;
+exports.renameCssResult = void 0;
+function renameCssResult(_a) {
+    // Rename CssResult to CssResultGroup
+    // e. g.: 'public static styles: CssResult = css``' -> 'public static styles: CssResultGroup = css``';
+    var root = _a.root, j = _a.j;
+    // Step 1: Rename CSSResult to CSSResultGroup when used as an import specifier
+    root
+        .find(j.ImportDeclaration)
+        .filter(function (path) { return ((path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral') &&
+        (path.value.source.value === 'lit-element' || path.value.source.value === 'lit-html')); }).find(j.ImportSpecifier)
+        .filter(function (path) {
+        var importSpecifierStr = path.value.imported.name;
+        return importSpecifierStr === 'CSSResult';
+    }).replaceWith(function (nodePath) {
+        var node = nodePath.node;
+        var newImportSpecifier = 'CSSResultGroup';
+        node.imported.name = newImportSpecifier;
+        return node;
+    });
+    // Step 2: Rename CSSResult to CSSResultGroup when used as a typescript type annotation
+    // @ts-ignore
+    root.find(j.TSType).filter(function (type) { return type.value.typeName.name === 'CSSResult'; })
+        .replaceWith(function (nodePath) {
+        var node = nodePath.node;
+        // @ts-ignore
+        node.typeName.name = 'CSSResultGroup';
+        return node;
+    });
+}
+exports.renameCssResult = renameCssResult;
+});
+
 function transformer(file, api, options) {
     var j = api.jscodeshift;
     var root = j(file.source);
@@ -193,6 +227,9 @@ function transformer(file, api, options) {
     // Rename import import specifiers for directives
     // e. g.: 'lit-html/directives/repeat.js' -> 'lit/directives/repeat.js';
     renameDirectivePaths_1.renameDirectivePaths({ root: root, j: j });
+    // Rename CssResult to CssResultGroup
+    // e. g.: 'public static styles: CssResult = css``' -> 'public static styles: CssResultGroup = css``';
+    renameCssResult_1.renameCssResult({ root: root, j: j });
     // Rename 'lit-element' and 'lit-html' import declarations 
     // e. g.: lit-element' -> 'lit'
     renameToLit_1.renameToLit({ root: root, j: j });
