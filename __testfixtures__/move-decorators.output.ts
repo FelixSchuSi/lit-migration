@@ -1,5 +1,3 @@
-import { LitElement } from 'lit';
-
 import {
     property,
     customElement,
@@ -8,4 +6,5 @@ import {
     queryAll,
     eventOptions,
     queryAssignedNodes,
-} from 'lit/decorators.js';
+    LitElement,
+} from 'lit-element';

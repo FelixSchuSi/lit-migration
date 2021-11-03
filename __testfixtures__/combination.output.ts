@@ -1,4 +1,3 @@
-import { ReactiveElement, LitElement, html } from 'lit';
-import type { PropertyValues, TemplateResult } from 'lit';
-import { property, customElement } from 'lit/decorators.js';
-import { repeat } from 'lit/directives/repeat.js';
+import { ReactiveElement, LitElement, html, property, customElement } from 'lit-element';
+import type { PropertyValues, TemplateResult } from 'lit-element';
+import { repeat } from 'lit-html/directives/repeat.js';

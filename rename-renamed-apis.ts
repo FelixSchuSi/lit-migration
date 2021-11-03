@@ -5,7 +5,7 @@ export function renameRenamedApis({ root, j }: DefaultOptions) {
     const renamedImports = {
         UpdatingElement: 'ReactiveElement',
         internalProperty: 'state',
-        NodePart: 'ChildPart'
+        NodePart: 'NodePart' // Renamed to ChildPart in lit v2
     }
     const renamedLitFunctions = {
         getStyles: 'finalizeStyles', // was moved from Litelement to ReactiveElement

@@ -9,48 +9,45 @@ exports.moveDecorators = void 0;
 // Move decorators to separate imports
 // e. g.: import {property} from `lit-element`; -> import {property} from `lit/decorators.js`;
 function moveDecorators(_a) {
-    var root = _a.root, j = _a.j;
-    var decoratorImport = null;
-    var decorators = ['state', 'property', 'customElement', 'internalProperty', 'query', 'queryAsync', 'queryAll', 'eventOptions', 'queryAssignedNodes'];
-    var imports = root
-        .find(j.ImportDeclaration, {
-        source: {
-            value: 'lit-element'
-        }
-    });
-    imports.filter(function (path) { return path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral'; })
-        .find(j.ImportSpecifier)
-        .filter(function (importSpecifier) {
-        var _a;
-        var importSpecifierStr = importSpecifier.value.imported.name;
-        if (decorators.some(function (decorator) { return decorator === importSpecifierStr; })) {
-            if (!decoratorImport) {
-                decoratorImport = addDecoratorImport(importSpecifier);
-            }
-            else {
-                // TODO: When the importSpecifier is taken from a 'import type' declaration
-                // The import should also be added to a 'import type' declaration
-                (_a = decoratorImport.specifiers) === null || _a === void 0 ? void 0 : _a.push(j.importSpecifier(j.identifier(importSpecifierStr)));
-            }
-            importSpecifier.parent.value.specifiers = importSpecifier.parent.value.specifiers.filter(function (e) {
-                var _a;
-                return ((_a = e.imported) === null || _a === void 0 ? void 0 : _a.name) !== importSpecifier.value.imported.name;
-            });
-            return importSpecifier.parent.value.specifiers.length === 0;
-        }
-        return false;
-    }).forEach(function (importSpecifier) {
-        j(importSpecifier.parent).remove();
-    });
-    function addDecoratorImport(importSpecifier) {
-        var firstNamedImport = importSpecifier.value.imported.name;
-        // TODO: When the importSpecifier is taken from a 'import type' declaration
-        // a 'import type' declaration should be created here
-        var newImport = j.importDeclaration([j.importSpecifier(j.identifier(firstNamedImport))], j.literal('lit/decorators.js'));
-        var lastLitElementImport = imports.at(imports.length - 1).get();
-        lastLitElementImport.insertAfter(newImport);
-        return newImport;
-    }
+    // let decoratorImport: ImportDeclaration | null = null;
+    _a.root; _a.j;
+    // const decorators = ['state', 'property', 'customElement', 'internalProperty', 'query', 'queryAsync', 'queryAll', 'eventOptions', 'queryAssignedNodes'];
+    // const imports = root
+    //     .find(j.ImportDeclaration, {
+    //         source: {
+    //             value: 'lit-element',
+    //         },
+    //     });
+    // imports.filter(path => path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral')
+    //     .find(j.ImportSpecifier)
+    //     .filter((importSpecifier: ASTPath<ImportSpecifier>) => {
+    //         const importSpecifierStr: string = importSpecifier.value.imported.name;
+    //         if (decorators.some(decorator => decorator === importSpecifierStr)) {
+    //             if (!decoratorImport) {
+    //                 decoratorImport = addDecoratorImport(importSpecifier);
+    //             } else {
+    //                 // TODO: When the importSpecifier is taken from a 'import type' declaration
+    //                 // The import should also be added to a 'import type' declaration
+    //                 decoratorImport.specifiers?.push(j.importSpecifier(j.identifier(importSpecifierStr)))
+    //             }
+    //             importSpecifier.parent.value.specifiers = importSpecifier.parent.value.specifiers.filter((e: ImportSpecifier) => {
+    //                 return e.imported?.name !== importSpecifier.value.imported.name;
+    //             });
+    //             return importSpecifier.parent.value.specifiers.length === 0
+    //         }
+    //         return false;
+    //     }).forEach((importSpecifier: ASTPath<ImportSpecifier>) => {
+    //         j(importSpecifier.parent).remove()
+    //     })
+    // function addDecoratorImport(importSpecifier: ASTPath<ImportSpecifier>): ImportDeclaration {
+    //     const firstNamedImport: string = importSpecifier.value.imported.name;
+    //     // TODO: When the importSpecifier is taken from a 'import type' declaration
+    //     // a 'import type' declaration should be created here
+    //     const newImport = j.importDeclaration([j.importSpecifier(j.identifier(firstNamedImport))], j.literal('lit/decorators.js'));
+    //     const lastLitElementImport = imports.at(imports.length - 1).get();
+    //     lastLitElementImport.insertAfter(newImport);
+    //     return newImport;
+    // }
 }
 exports.moveDecorators = moveDecorators;
 });
@@ -59,22 +56,22 @@ var renameDirectivePaths_1 = createCommonjsModule(function (module, exports) {
 exports.__esModule = true;
 exports.renameDirectivePaths = void 0;
 function renameDirectivePaths(_a) {
-    var root = _a.root, j = _a.j;
     // Rename import import-paths for directives
     // e. g.: 'lit-html/directives/repeat.js' -> 'lit/directives/repeat.js';
-    var directives = ['async-append', 'async-replace', 'cache', 'class-map', 'guard', 'if-defined', 'live', 'repeat', 'style-map', 'template-content', 'unsafe-html', 'unsafe-svg', 'until'];
-    root
-        .find(j.ImportDeclaration)
-        .filter(function (path) { return path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral'; })
-        .replaceWith(function (nodePath) {
-        var node = nodePath.node;
-        var currentValue = node.source.value;
-        if (currentValue.startsWith('lit-html/directives/') && directives.some(function (directive) { return currentValue.includes(directive); })) {
-            var newValue = currentValue.replace(/^lit-html/, 'lit');
-            node.source.value = newValue;
-        }
-        return node;
-    });
+    // const directives = ['async-append', 'async-replace', 'cache', 'class-map', 'guard', 'if-defined', 'live', 'repeat', 'style-map', 'template-content', 'unsafe-html', 'unsafe-svg', 'until'];
+    // root
+    //     .find(j.ImportDeclaration)
+    //     .filter(path => path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral')
+    //     .replaceWith(nodePath => {
+    //         const { node } = nodePath;
+    //         const currentValue = <string>node.source.value;
+    _a.root; _a.j;
+    //         if (currentValue.startsWith('lit-html/directives/') && directives.some(directive => currentValue.includes(directive))) {
+    //             const newValue = currentValue.replace(/^lit-html/, 'lit');
+    //             node.source.value = newValue;
+    //         }
+    //         return node;
+    //     });
 }
 exports.renameDirectivePaths = renameDirectivePaths;
 });
@@ -83,17 +80,19 @@ var renameToLit_1 = createCommonjsModule(function (module, exports) {
 exports.__esModule = true;
 exports.renameToLit = void 0;
 function renameToLit(_a) {
-    var root = _a.root, j = _a.j;
+    _a.root; _a.j;
     // Rename import declarations from 'lit-element' to 'lit'
-    root
-        .find(j.ImportDeclaration)
-        .filter(function (path) { return ((path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral') &&
-        (path.value.source.value === 'lit-element' || path.value.source.value === 'lit-html')); })
-        .replaceWith(function (nodePath) {
-        var node = nodePath.node;
-        node.source.value = 'lit';
-        return node;
-    });
+    // root
+    //     .find(j.ImportDeclaration)
+    //     .filter(path => (
+    //         (path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral') &&
+    //         (path.value.source.value === 'lit-element' || path.value.source.value === 'lit-html'))
+    //     )
+    //     .replaceWith(nodePath => {
+    //         const { node } = nodePath;
+    //         node.source.value = 'lit';
+    //         return node;
+    //     });
 }
 exports.renameToLit = renameToLit;
 });
@@ -106,7 +105,7 @@ function renameRenamedApis(_a) {
     var renamedImports = {
         UpdatingElement: 'ReactiveElement',
         internalProperty: 'state',
-        NodePart: 'ChildPart'
+        NodePart: 'NodePart' // Renamed to ChildPart in lit v2
     };
     var renamedLitFunctions = {
         getStyles: 'finalizeStyles',

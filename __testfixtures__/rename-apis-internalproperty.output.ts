@@ -1,6 +1,4 @@
-import { LitElement } from 'lit';
-
-import { state } from 'lit/decorators.js';
+import { LitElement, state } from 'lit-element';
 
 class Element extends LitElement {
     @state() number = 5;
