@@ -33,7 +33,7 @@ function transformer(file: FileInfo, api: API, options: Options) {
     // e. g.: lit-element' -> 'lit'
     renameToLit({ root, j });
 
-    return root.toSource({ quote: 'single' })
+    return root.toSource({ quote: 'single', lineTerminator : '\n' });
 }
 
 
