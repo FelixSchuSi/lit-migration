@@ -13,7 +13,7 @@ export function renameCssResult({ root, j }: DefaultOptions) {
             (path.value.source.value === 'lit-element' || path.value.source.value === 'lit-html'))
         ).find(j.ImportSpecifier)
         .filter((path: ASTPath<ImportSpecifier>) => {
-            const importSpecifierStr: string = path.value.imported.name;
+            const importSpecifierStr: string = path.value?.imported?.name
             return importSpecifierStr === 'CSSResult';
         }).replaceWith(nodePath => {
             const { node } = nodePath;
