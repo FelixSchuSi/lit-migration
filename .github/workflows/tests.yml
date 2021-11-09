@@ -26,7 +26,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: dos2unix __testfixtures__/
-        if: ${{ matrix.os == "windows-latest" }}
+        if: ${{ matrix.os == windows-latest }}
       - run: npm run test
       - run: npm run build
       - run: npx jscodeshift -t lit-migration.js __testfixtures__/ --extensions=ts --parser=ts
