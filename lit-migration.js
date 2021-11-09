@@ -194,7 +194,8 @@ function renameCssResult(_a) {
         .filter(function (path) { return ((path.value.source.type === 'Literal' || path.value.source.type === 'StringLiteral') &&
         (path.value.source.value === 'lit-element' || path.value.source.value === 'lit-html')); }).find(j.ImportSpecifier)
         .filter(function (path) {
-        var importSpecifierStr = path.value.imported.name;
+        var _a, _b;
+        var importSpecifierStr = (_b = (_a = path.value) === null || _a === void 0 ? void 0 : _a.imported) === null || _b === void 0 ? void 0 : _b.name;
         return importSpecifierStr === 'CSSResult';
     }).replaceWith(function (nodePath) {
         var node = nodePath.node;
@@ -204,7 +205,7 @@ function renameCssResult(_a) {
     });
     // Step 2: Rename CSSResult to CSSResultGroup when used as a typescript type annotation
     // @ts-ignore
-    root.find(j.TSType).filter(function (type) { return type.value.typeName.name === 'CSSResult'; })
+    root.find(j.TSType).filter(function (type) { var _a, _b; return ((_b = (_a = type === null || type === void 0 ? void 0 : type.value) === null || _a === void 0 ? void 0 : _a.typeName) === null || _b === void 0 ? void 0 : _b.name) === 'CSSResult'; })
         .replaceWith(function (nodePath) {
         var node = nodePath.node;
         // @ts-ignore
@@ -213,6 +214,71 @@ function renameCssResult(_a) {
     });
 }
 exports.renameCssResult = renameCssResult;
+});
+
+var changeShadowrootCreation = createCommonjsModule(function (module, exports) {
+exports.__esModule = true;
+exports.changeShadowRootCreation = void 0;
+function changeShadowRootCreation(_a) {
+    // Transform from:
+    var root = _a.root, j = _a.j;
+    // protected createRenderRoot(): Element | ShadowRoot {
+    //   return this.attachShadow({ mode: 'open', delegatesFocus: true });
+    // }
+    // to:
+    // protected static shadowRootOptions: ShadowRootInit = {
+    //   delegatesFocus: true,
+    //   mode: 'open',
+    // };
+    var shadowRootOptionsFromRemovedNode = null;
+    root
+        .find(j.ClassMethod)
+        .filter(function (path) {
+        var _a;
+        // Only inspect `createRenderRoot` calls
+        var node = path.node;
+        // @ts-ignore
+        return ((_a = node === null || node === void 0 ? void 0 : node.key) === null || _a === void 0 ? void 0 : _a.name) === 'createRenderRoot';
+    })
+        .filter(function (path) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+        // Only inspect if `this.attachShadow` is called inside the `createRenderRoot` function
+        var node = path.node;
+        //@ts-ignore
+        var isThisExpression = ((_e = (_d = (_c = (_b = (_a = node === null || node === void 0 ? void 0 : node.body) === null || _a === void 0 ? void 0 : _a.body[0]) === null || _b === void 0 ? void 0 : _b.argument) === null || _c === void 0 ? void 0 : _c.callee) === null || _d === void 0 ? void 0 : _d.object) === null || _e === void 0 ? void 0 : _e.type) === 'ThisExpression';
+        //@ts-ignore
+        var isAttachShadowCall = ((_l = (_k = (_j = (_h = (_g = (_f = node === null || node === void 0 ? void 0 : node.body) === null || _f === void 0 ? void 0 : _f.body[0]) === null || _g === void 0 ? void 0 : _g.argument) === null || _h === void 0 ? void 0 : _h.callee) === null || _j === void 0 ? void 0 : _j.property) === null || _k === void 0 ? void 0 : _k.loc) === null || _l === void 0 ? void 0 : _l.identifierName) === 'attachShadow';
+        return isThisExpression && isAttachShadowCall;
+    })
+        .replaceWith(function (path) {
+        var _a, _b, _c;
+        var node = path.node;
+        //@ts-ignore
+        shadowRootOptionsFromRemovedNode = (_c = (_b = (_a = node === null || node === void 0 ? void 0 : node.body) === null || _a === void 0 ? void 0 : _a.body[0]) === null || _b === void 0 ? void 0 : _b.argument) === null || _c === void 0 ? void 0 : _c.arguments[0];
+        // Completely remove the old function
+        //@ts-ignore
+        node = null;
+        return node;
+    });
+    if (shadowRootOptionsFromRemovedNode !== null) {
+        root
+            .find(j.ClassDeclaration)
+            .replaceWith(function (path) {
+            var node = path.node;
+            var newElement = j.classProperty.from({
+                access: "public",
+                key: j.identifier("shadowRootOptions"),
+                static: true,
+                value: shadowRootOptionsFromRemovedNode,
+                typeAnnotation: j.tsTypeAnnotation(j.tsTypeReference(j.identifier("ShadowRootInit")))
+            });
+            node.body.body.push(newElement);
+            return node;
+        });
+    }
+    // TODO: Add Test where this transform should not be applied
+}
+exports.changeShadowRootCreation = changeShadowRootCreation;
 });
 
 function transformer(file, api, options) {
@@ -224,6 +290,18 @@ function transformer(file, api, options) {
     // Move decorators to separate imports
     // e. g.: import { property } from 'lit-element'; -> import { property } from 'lit/decorators.js';
     moveDecorators_1.moveDecorators({ root: root, j: j });
+    // Change how shadow Roots are created
+    // This was not covered by Lit's migration guide
+    // Turns following code:
+    // protected createRenderRoot(): Element | ShadowRoot {
+    //   return this.attachShadow({ mode: 'open', delegatesFocus: true });
+    // }
+    // into:
+    // protected static shadowRootOptions: ShadowRootInit = {
+    //   delegatesFocus: true,
+    //   mode: 'open',
+    // };
+    changeShadowrootCreation.changeShadowRootCreation({ root: root, j: j });
     // Rename import import specifiers for directives
     // e. g.: 'lit-html/directives/repeat.js' -> 'lit/directives/repeat.js';
     renameDirectivePaths_1.renameDirectivePaths({ root: root, j: j });
@@ -233,7 +311,7 @@ function transformer(file, api, options) {
     // Rename 'lit-element' and 'lit-html' import declarations 
     // e. g.: lit-element' -> 'lit'
     renameToLit_1.renameToLit({ root: root, j: j });
-    return root.toSource({ quote: 'single' });
+    return root.toSource({ quote: 'single', lineTerminator: '\n' });
 }
 module.exports = transformer;
 module.exports.parser = 'ts';

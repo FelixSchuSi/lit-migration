@@ -24,7 +24,7 @@ export function renameCssResult({ root, j }: DefaultOptions) {
 
     // Step 2: Rename CSSResult to CSSResultGroup when used as a typescript type annotation
     // @ts-ignore
-    root.find(j.TSType).filter(type => type.value.typeName.name === 'CSSResult')
+    root.find(j.TSType).filter(type => type?.value?.typeName?.name === 'CSSResult')
         .replaceWith(nodePath => {
             const { node } = nodePath;
             // @ts-ignore

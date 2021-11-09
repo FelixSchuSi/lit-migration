@@ -4,6 +4,7 @@ import { renameDirectivePaths } from "./rename-directive-paths";
 import { renameToLit } from "./rename-to-lit";
 import { renameRenamedApis } from "./rename-renamed-apis";
 import { renameCssResult } from "./rename-css-result";
+import { changeShadowRootCreation } from "./change-shadowroot-creation";
 export interface DefaultOptions {
     j: JSCodeshift,
     root: Collection<any>
@@ -21,6 +22,19 @@ function transformer(file: FileInfo, api: API, options: Options) {
     // e. g.: import { property } from 'lit-element'; -> import { property } from 'lit/decorators.js';
     moveDecorators({ root, j });
 
+    // Change how shadow Roots are created
+    // This was not covered by Lit's migration guide
+    // Turns following code:
+    // protected createRenderRoot(): Element | ShadowRoot {
+    //   return this.attachShadow({ mode: 'open', delegatesFocus: true });
+    // }
+    // into:
+    // protected static shadowRootOptions: ShadowRootInit = {
+    //   delegatesFocus: true,
+    //   mode: 'open',
+    // };
+    changeShadowRootCreation({ root, j });
+
     // Rename import import specifiers for directives
     // e. g.: 'lit-html/directives/repeat.js' -> 'lit/directives/repeat.js';
     renameDirectivePaths({ root, j });
@@ -33,7 +47,7 @@ function transformer(file: FileInfo, api: API, options: Options) {
     // e. g.: lit-element' -> 'lit'
     renameToLit({ root, j });
 
-    return root.toSource({ quote: 'single', lineTerminator : '\n' });
+    return root.toSource({ quote: 'single', lineTerminator: '\n' });
 }
 
 
