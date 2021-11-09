@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, "windows-latest"]
+        os: [macos-latest, ubuntu-latest, windows-latest]
         node-version: [14.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
@@ -25,6 +25,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
+      - run: dos2unix __testfixtures__/
+        if: ${{ matrix.os == "windows-latest" }}
       - run: npm run test
       - run: npm run build
       - run: npx jscodeshift -t lit-migration.js __testfixtures__/ --extensions=ts --parser=ts
