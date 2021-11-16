@@ -8,4 +8,4 @@ import {
     queryAll,
     eventOptions,
     queryAssignedNodes,
-} from 'lit/decorators.js';
+} from 'lit/decorators';

@@ -46,7 +46,7 @@ function moveDecorators(_a) {
         var firstNamedImport = importSpecifier.value.imported.name;
         // TODO: When the importSpecifier is taken from a 'import type' declaration
         // a 'import type' declaration should be created here
-        var newImport = j.importDeclaration([j.importSpecifier(j.identifier(firstNamedImport))], j.literal('lit/decorators.js'));
+        var newImport = j.importDeclaration([j.importSpecifier(j.identifier(firstNamedImport))], j.literal('lit/decorators'));
         var lastLitElementImport = imports.at(imports.length - 1).get();
         lastLitElementImport.insertAfter(newImport);
         return newImport;
